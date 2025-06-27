@@ -1,0 +1,19 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f4f6f9;
+}
+
+h1, h2, h3 {
+  color: #0d6efd;
+}
+
+footer.footer {
+  background: #e9ecef;
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+}
+
+.alert {
+  margin-top: 10px;
+}
