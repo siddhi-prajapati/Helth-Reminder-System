@@ -5,23 +5,19 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const methodOverride = require("method-override");
 const MongoStore = require("connect-mongo");
-
 require("dotenv").config();
 require('./config/passport')(passport);
 
-
 const app = express();
 
-// DB Connection
-mongoose.connect("mongodb://127.0.0.1:27017/healthReminder");
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
+// Choose Mongo URI based on environment
+const ENV = process.env.NODE_ENV || "development";
+const MONGO_URI = ENV === "production" ? process.env.MONGO_URI_ATLAS : process.env.MONGO_URI_LOCAL;
 
-// mongoose.connect("mongodb://127.0.0.1:27017/healthReminder", {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-// });
-console.log("MongoDB Connected");
+// DB Connection
+mongoose.connect(MONGO_URI)
+  .then(() => console.log(`MongoDB Connected: ${ENV}`))
+  .catch(err => console.log(err));
 
 // EJS Setup
 app.set("view engine", "ejs");
@@ -37,7 +33,7 @@ app.use(
     secret: "secretkey",
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: "mongodb://127.0.0.1:27017/healthReminder" }),
+    store: MongoStore.create({ mongoUrl: MONGO_URI }),
   })
 );
 
@@ -62,5 +58,4 @@ app.use("/", require("./routes"));
 
 // Start Server
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
