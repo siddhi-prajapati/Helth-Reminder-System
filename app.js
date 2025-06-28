@@ -1,3 +1,4 @@
+// app.js
 const express = require("express");
 const mongoose = require("mongoose");
 const session = require("express-session");
@@ -6,11 +7,11 @@ const passport = require("passport");
 const methodOverride = require("method-override");
 const MongoStore = require("connect-mongo");
 require("dotenv").config();
-require('./config/passport')(passport);
+require("./config/passport")(passport);
 
 const app = express();
 
-// Environment-based Mongo URI
+// Choose Mongo URI based on environment
 const ENV = process.env.NODE_ENV || "development";
 const MONGO_URI = ENV === "production" ? process.env.MONGO_URI_ATLAS : process.env.MONGO_URI_LOCAL;
 
@@ -19,7 +20,7 @@ mongoose.connect(MONGO_URI)
   .then(() => console.log(`MongoDB Connected: ${ENV}`))
   .catch(err => console.error("MongoDB connection error:", err));
 
-// EJS
+// EJS Setup
 app.set("view engine", "ejs");
 
 // Middleware
@@ -33,7 +34,7 @@ app.use(
     secret: process.env.SECRET || "secretkey",
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: MONGO_URI }),
+    store: MongoStore.create({ mongoUrl: MONGO_URI })
   })
 );
 
@@ -44,8 +45,8 @@ app.use(passport.session());
 // Flash
 app.use(flash());
 
-// Global variables
-app.use((req, res, next) => {
+// Globals
+app.use(function (req, res, next) {
   res.locals.success_msg = req.flash("success_msg");
   res.locals.error_msg = req.flash("error_msg");
   res.locals.error = req.flash("error");
@@ -56,13 +57,11 @@ app.use((req, res, next) => {
 // Routes
 app.use("/", require("./routes"));
 
-// ✅ Start server only in local (not on Vercel)
+// Only run server locally
 if (ENV !== "production") {
   const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () =>
-    console.log(`Server running locally at http://localhost:${PORT}`)
-  );
+  app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 }
 
-// ✅ For Vercel
+// Export for Vercel
 module.exports = app;
